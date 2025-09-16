@@ -33,23 +33,29 @@ def clean_airports(airports_df):
     # TODO: Remove rows with missing latitude or longitude
     # Hint: Use .dropna(subset=['latitude', 'longitude'])
     # df = df.dropna(subset=['latitude', 'longitude'])
+    df = df.dropna(subset=['latitude', 'longitude'])
     
     # TODO: Remove airports with invalid coordinates
     # Latitude should be between -90 and 90
     # Longitude should be between -180 and 180
     # Hint: df = df[(df['latitude'] >= -90) & (df['latitude'] <= 90)]
     # Hint: df = df[(df['longitude'] >= -180) & (df['longitude'] <= 180)]
+    df = df[(df['latitude'] >= -90) & (df['latitude'] <= 90)]
+    df = df[(df['longitude'] >= -180) & (df['longitude'] <= 180)]
     
     # TODO: Handle missing IATA codes (replace empty strings or 'N' with None)
     # Hint: df['iata_code'] = df['iata_code'].replace(['', 'N', '\\N'], None)
+    df['iata_code'] = df['iata_code'].replace(["", "N", "\\N"], None)
     
     # TODO: Convert altitude to numeric (handle non-numeric values)
     # Hint: df['altitude'] = pd.to_numeric(df['altitude'], errors='coerce')
+    df['altitude'] = pd.to_numeric(df['altitude'], errors='coerce')
     
     # TODO: Print how many airports remain after cleaning
     # print(f"After cleaning: {len(df)} airports remain")
+    print(f'After cleaning : {len(df)} airports remaining')
     
-    print("⚠️  Airport cleaning not yet implemented")
+    #print("⚠️  Airport cleaning not yet implemented")
     return df
 
 def clean_flights(flights_df):
@@ -91,26 +97,33 @@ def clean_flights(flights_df):
     
     # TODO: Assign column names to the DataFrame
     # Hint: df.columns = expected_columns
+    df.columns = expected_columns
     
     # TODO: Remove flights with missing coordinates
     # Hint: df = df.dropna(subset=['longitude', 'latitude'])
-    
+    df = df.dropna(subset=['longitude','latitude'])
+
     # TODO: Convert altitude from meters to feet (multiply by 3.28084)
     # This makes it easier to understand for aviation
-    # Hint: df['altitude'] = df['altitude'] * 3.28084
+    # Hint: df['altitude'] = df['altitude'] * 3.28084    
+    df['altitude'] *= 3.28084
     
     # TODO: Remove flights with invalid coordinates
     # Same coordinate bounds as airports
     # Hint: df = df[(df['latitude'] >= -90) & (df['latitude'] <= 90)]
     # Hint: df = df[(df['longitude'] >= -180) & (df['longitude'] <= 180)]
-    
+    df = df[(df['latitude'] <= 90) & (df['latitude'] >= -90)]
+    df = df[(df['longitude'] <= 180) & (df['longitude'] >= -180)]
+
     # TODO: Clean callsign (remove extra whitespace)
     # Hint: df['callsign'] = df['callsign'].str.strip()
+    df['callsign'] = df['callsign'].str.strip()
     
     # TODO: Print how many flights remain after cleaning
     # print(f"After cleaning: {len(df)} flights remain")
+    print(f"{len(df)} remaining flights after cleaning")
     
-    print("⚠️  Flight cleaning not yet implemented")
+    #print("⚠️  Flight cleaning not yet implemented")
     return df
 
 def combine_data(airports_df, flights_df):
@@ -138,10 +151,22 @@ def combine_data(airports_df, flights_df):
     
     # TODO (Optional): If you want to try something more advanced,
     # you could find the nearest airport for each flight:
-    # 
-    # def find_nearest_airport(flight_lat, flight_lon, airports_df):
-    #     # Calculate distances and return nearest airport
-    #     pass
+
+    def distance(flight_lat, flight_lon, airport_lat, airport_lon):
+        # Using formula found on https://fr.wikipedia.org/wiki/Formule_de_haversine
+        R_earth = 6371
+        A = np.sin((flight_lat - airport_lat)/2)**2
+        B = np.cos(flight_lat) * np.cos(airport_lat) * np.sin((flight_lon - airport_lon)/2)**2
+
+        return 2*R_earth * np.arcsin(np.sqrt(A + B))
+    
+    def find_nearest_airport(flight_lat, flight_lon, airports_df):
+        # Calculate distances and return nearest airport
+        distances = np.array([distance(flight_lat, flight_lon, airport_lat, airport_lon) 
+                     for airport_lat, airport_lon in zip(airports_df['latitude'], airports_df['longitude'])])
+        min_ind = np.argmin(distances)
+
+        return airports_df.iloc[min_ind,0]
     
     return airports_df, flights_df
 
