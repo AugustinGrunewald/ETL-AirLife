@@ -14,7 +14,7 @@ import psycopg2
 # Database connection configuration
 # TODO: Update these values with your actual database credentials
 DATABASE_CONFIG = {
-    'username': 'picqf',
+    'username': 'grunewaldaugustin',
     'password': '', 
     'host': 'localhost',
     'port': '5432',

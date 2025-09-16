@@ -94,6 +94,7 @@ def clean_flights(flights_df):
     
     # Make a copy to avoid modifying the original
     df = flights_df.copy()
+    df = df.iloc[:,:12]
     
     # TODO: Assign column names to the DataFrame
     # Hint: df.columns = expected_columns

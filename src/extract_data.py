@@ -123,6 +123,6 @@ if __name__ == "__main__":
     if test_api_connection():
         # Test flight extraction
         flights = extract_flights()
-        print(f"Flight extraction returned DataFrame with shape: {flights.shape}")
+        #print(f"Flight extraction returned DataFrame with shape: {flights.shape}")
     else:
         print("Skipping flight extraction due to API issues")
